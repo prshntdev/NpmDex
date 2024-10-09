@@ -2,10 +2,11 @@
   "name": "npmdex",
   "displayName": "NpmDex ",
   "description": "A VS Code extension to manage NPM dependencies via GUI.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "engines": {
     "vscode": "^1.94.0"
   },
+  "icon": "ico.jpg",
   "publisher": "prshntdev",
   "categories": [
     "Other"

@@ -17,3 +17,8 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 - Basic styling for the extension UI
 - Initial setup for the extension's main functionality
 
+## [1.0.0] - 2024-10-09
+
+### Added
+- Added icon to the extension
+
