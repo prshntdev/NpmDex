@@ -563,12 +563,30 @@ function getWebviewContent(context: vscode.ExtensionContext, webview: vscode.Web
                 }
             }
 
+            function compareVersions(v1, v2) {
+                const a = v1.split('.').map(Number);
+                const b = v2.split('.').map(Number);
+                for (let i = 0; i < Math.max(a.length, b.length); i++) {
+                    if ((a[i] || 0) > (b[i] || 0)) return -1;
+                    if ((a[i] || 0) < (b[i] || 0)) return 1;
+                }
+                return 0;
+            }
+
+            function isSameVersion(v1, v2) {
+                return compareVersions(v1, v2) === 0;
+            }
+
             // Populate Dependencies and Dev Dependencies with Dropdowns
             function populateDependencies(listId, deps, isDev, vulnerabilities) {
                 const list = document.getElementById(listId);
                 list.innerHTML = '';
                 for (const [name, version] of Object.entries(deps)) {
                     const vulnInfo = vulnerabilities && vulnerabilities[name];
+                    let versionNumber = version;
+                    if (versionNumber.startsWith('^') || versionNumber.startsWith('~')) {
+                        versionNumber = versionNumber.slice(1);
+                    }
                     const depItem = document.createElement('div');
                     depItem.className = \`dep-item flex justify-between items-center p-4 rounded shadow \${currentTheme}-theme\`;
                     depItem.id = 'dep-' + name;
@@ -595,7 +613,7 @@ function getWebviewContent(context: vscode.ExtensionContext, webview: vscode.Web
                     const versionSelect = document.createElement('select');
                     versionSelect.className = \`mt-1 p-1 border rounded \${currentTheme === 'dark' ? 'bg-gray-700 text-white' : 'bg-white text-black'}\`;
                     versionSelect.dataset.packageName = name;
-                    versionSelect.dataset.currentVersion = version;
+                    versionSelect.dataset.currentVersion = versionNumber;
 
                     // Populate dropdown with available versions
                     fetch(\`https://registry.npmjs.org/\${encodeURIComponent(name)}\`)
@@ -606,13 +624,14 @@ function getWebviewContent(context: vscode.ExtensionContext, webview: vscode.Web
                                 const option = document.createElement('option');
                                 option.value = ver;
                                 option.textContent = ver;
-                                if (isSameVersion(ver, version)) {
+                                if (ver === versionNumber) {
                                     option.selected = true;
                                 }
                                 versionSelect.appendChild(option);
                             });
                         })
                         .catch((error) => {
+                        console.log(error);
                             const option = document.createElement('option');
                             option.value = version;
                             option.textContent = version;
